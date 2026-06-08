@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ember & Smoke — Premium BBQ Restaurant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root{--gold:#C9A84C;--gold-l:#E8C96A;--gold-d:#8B6914;--black:#090909;--dark:#111;--d2:#181818;--d3:#222;--white:#F5F0E8;--gray:#888;--fd:'Cormorant Garamond',serif;--fb:'Outfit',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:var(--fb);overflow-x:hidden;cursor:none;}
+.cur{width:10px;height:10px;background:var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99999;transition:transform .12s ease;}
+.cur-r{width:36px;height:36px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99998;transition:all .18s ease;opacity:.55;}
+@media(pointer:coarse){body{cursor:auto;}.cur,.cur-r{display:none;}a,button{cursor:pointer;}}
+#pre{position:fixed;inset:0;background:var(--black);z-index:99997;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease,visibility .8s ease;}
+#pre.hide{opacity:0;visibility:hidden;}
+.pre-logo{font-family:var(--fd);font-size:2.8rem;color:var(--gold);letter-spacing:5px;animation:blink 1.4s ease infinite;}
+.pre-bar{width:180px;height:2px;background:var(--d3);margin-top:22px;overflow:hidden;}
+.pre-fill{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));animation:fillbar 2.2s ease forwards;}
+@keyframes fillbar{from{width:0}to{width:100%}}@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:18px 5%;display:flex;align-items:center;justify-content:space-between;transition:all .4s ease;}
+nav.sc{background:rgba(9,9,9,.96);backdrop-filter:blur(24px);border-bottom:1px solid rgba(201,168,76,.12);padding:12px 5%;}
+.nav-logo{font-family:var(--fd);font-size:1.75rem;font-weight:700;color:var(--gold);text-decoration:none;letter-spacing:2px;}
+.nav-logo span{color:var(--white);}
+.nav-links{display:flex;gap:32px;list-style:none;}
+.nav-links a{color:var(--white);text-decoration:none;font-size:.82rem;letter-spacing:2px;text-transform:uppercase;font-weight:500;position:relative;transition:color .3s;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width .3s ease;}
+.nav-links a:hover{color:var(--gold);}.nav-links a:hover::after{width:100%;}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-cart{position:relative;background:transparent;border:1px solid rgba(201,168,76,.35);color:var(--gold);width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:none;transition:all .3s ease;}
+.nav-cart:hover{background:var(--gold);color:var(--black);}
+.cart-badge{position:absolute;top:-7px;right:-7px;background:#e63946;color:#fff;font-size:.6rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .3s ease;}
+.cart-badge.show{opacity:1;transform:scale(1);}
+.nav-res{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:10px 22px;font-family:var(--fb);font-size:.78rem;letter-spacing:2px;text-transform:uppercase;cursor:none;transition:all .3s ease;text-decoration:none;}
+.nav-res:hover{background:var(--gold);color:var(--black);}
+.hbg{display:none;flex-direction:column;gap:5px;cursor:none;background:none;border:none;}
+.hbg span{display:block;width:26px;height:2px;background:var(--gold);transition:all .3s ease;}
+.mob-menu{display:none;position:fixed;inset:0;background:rgba(9,9,9,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+.mob-menu.open{display:flex;}
+.mob-menu a{font-family:var(--fd);font-size:2.4rem;color:var(--white);text-decoration:none;transition:color .3s;}
+.mob-menu a:hover{color:var(--gold);}
+#hero{height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.h-bg{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.88) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.78) 100%),url('https://images.unsplash.com/photo-1544025162-d76694265947?w=1800&q=80')center/cover no-repeat;transform:scale(1.05);transition:transform 10s ease;}
+.h-ov{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.65) 100%);}
+.h-con{position:relative;z-index:2;text-align:center;padding:0 20px;}
+.h-badge{display:inline-block;border:1px solid var(--gold);color:var(--gold);font-size:.7rem;letter-spacing:4px;text-transform:uppercase;padding:7px 20px;margin-bottom:28px;opacity:0;animation:fup .8s ease .5s forwards;}
+.h-title{font-family:var(--fd);font-size:clamp(3.2rem,9vw,7.5rem);font-weight:300;line-height:1;letter-spacing:1px;margin-bottom:22px;opacity:0;animation:fup .9s ease .8s forwards;}
+.h-title em{font-style:italic;color:var(--gold);}
+.h-sub{font-size:.95rem;color:rgba(245,240,232,.65);letter-spacing:3px;text-transform:uppercase;margin-bottom:44px;opacity:0;animation:fup .9s ease 1.1s forwards;}
+.h-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fup .9s ease 1.4s forwards;}
+.btn-gold{background:var(--gold);color:var(--black);padding:15px 36px;font-family:var(--fb);font-size:.8rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;border:none;cursor:none;transition:all .3s ease;position:relative;overflow:hidden;}
+.btn-gold::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.2);transform:translateX(-100%);transition:transform .4s ease;}
+.btn-gold:hover::before{transform:translateX(0);}
+.btn-out{background:transparent;color:var(--white);padding:15px 36px;font-size:.8rem;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;border:1px solid rgba(245,240,232,.35);cursor:none;transition:all .3s ease;}
+.btn-out:hover{border-color:var(--gold);color:var(--gold);}
+.h-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fup .9s ease 2s forwards;}
+.h-scroll span{font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray);}
+.sc-ln{width:1px;height:48px;background:linear-gradient(to bottom,var(--gold),transparent);animation:sdrop 2s ease infinite;}
+@keyframes sdrop{0%{transform:scaleY(0);transform-origin:top;opacity:1}50%{transform:scaleY(1);transform-origin:top;opacity:1}100%{transform:scaleY(1);transform-origin:bottom;opacity:0}}
+section{padding:96px 5%;}
+.slbl{font-size:.68rem;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:block;}
+.stit{font-family:var(--fd);font-size:clamp(2rem,4.5vw,3.8rem);font-weight:400;line-height:1.15;margin-bottom:18px;}
+.stit em{font-style:italic;color:var(--gold);}
+.sln{width:56px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-bottom:44px;}
+.tc{text-align:center;}.tc .sln{margin:0 auto 44px;}
+#stats{padding:56px 5%;background:var(--d2);border-top:1px solid rgba(201,168,76,.1);border-bottom:1px solid rgba(201,168,76,.1);}
+.st-g{display:grid;grid-template-columns:repeat(4,1fr);}
+.st-i{text-align:center;padding:28px 20px;border-right:1px solid rgba(201,168,76,.1);}
+.st-i:last-child{border-right:none;}
+.st-n{font-family:var(--fd);font-size:3.2rem;font-weight:700;color:var(--gold);line-height:1;}
+.st-l{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-top:8px;}
+#about{background:var(--dark);}
+.ab-g{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
+.ab-iw{position:relative;}
+.ab-img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;}
+.ab-bdg{position:absolute;bottom:-20px;right:-20px;width:120px;height:120px;background:var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.ab-bdg strong{font-family:var(--fd);font-size:2.2rem;color:var(--black);line-height:1;}
+.ab-bdg span{font-size:.6rem;letter-spacing:2px;color:var(--black);text-transform:uppercase;}
+.ab-ft{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px;}
+.af{display:flex;align-items:flex-start;gap:12px;}
+.af i{color:var(--gold);font-size:1rem;margin-top:3px;}
+.af h4{font-size:.88rem;font-weight:600;margin-bottom:3px;}
+.af p{font-size:.76rem;color:var(--gray);margin:0;line-height:1.5;}
+#menu{background:var(--black);}
+.m-tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:52px;}
+.m-tab{background:transparent;border:1px solid rgba(201,168,76,.22);color:var(--gray);padding:10px 22px;font-family:var(--fb);font-size:.76rem;letter-spacing:2px;text-transform:uppercase;cursor:none;transition:all .3s ease;}
+.m-tab:hover,.m-tab.active{background:var(--gold);color:var(--black);border-color:var(--gold);}
+.m-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:22px;}
+.m-card{background:var(--d2);border:1px solid rgba(201,168,76,.07);overflow:hidden;transition:all .4s ease;}
+.m-card:hover{transform:translateY(-8px);border-color:rgba(201,168,76,.28);box-shadow:0 24px 56px rgba(0,0,0,.5);}
+.mc-iw{overflow:hidden;position:relative;}
+.mc-img{width:100%;height:195px;object-fit:cover;display:block;transition:transform .6s ease;}
+.m-card:hover .mc-img{transform:scale(1.08);}
+.mc-tag{position:absolute;top:12px;left:12px;background:var(--gold);color:var(--black);font-size:.62rem;letter-spacing:2px;text-transform:uppercase;padding:4px 11px;font-weight:700;}
+.mc-body{padding:20px;}
+.mc-body h3{font-family:var(--fd);font-size:1.3rem;font-weight:600;margin-bottom:7px;}
+.mc-body p{color:var(--gray);font-size:.8rem;line-height:1.65;margin-bottom:14px;}
+.mc-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,.1);padding-top:14px;}
+.mc-price{font-family:var(--fd);font-size:1.35rem;color:var(--gold);font-weight:600;}
+.mc-price span{font-size:.76rem;font-weight:400;color:var(--gray);}
+.mc-btn{background:var(--gold);color:var(--black);border:none;padding:9px 18px;font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;cursor:none;transition:all .3s ease;font-family:var(--fb);font-weight:700;display:flex;align-items:center;gap:6px;}
+.mc-btn:hover{background:var(--gold-l);}
+#exp-sec{background:linear-gradient(135deg,var(--dark) 0%,var(--d2) 100%);position:relative;overflow:hidden;}
+.ex-g{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:56px;}
+.ex-c{background:var(--d3);padding:44px 32px;text-align:center;position:relative;overflow:hidden;transition:all .4s ease;}
+.ex-c::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold-d),var(--gold));transform:scaleX(0);transition:transform .4s ease;}
+.ex-c:hover::before{transform:scaleX(1);}
+.ex-c:hover{background:#1e1e1e;transform:translateY(-4px);}
+.ex-ico{width:68px;height:68px;border:1px solid rgba(201,168,76,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:1.5rem;color:var(--gold);transition:all .4s ease;}
+.ex-c:hover .ex-ico{background:var(--gold);color:var(--black);border-color:var(--gold);}
+.ex-c h3{font-family:var(--fd);font-size:1.35rem;margin-bottom:12px;}
+.ex-c p{color:var(--gray);font-size:.83rem;line-height:1.8;}
+#gallery{background:var(--black);}
+.gl-g{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,230px);gap:10px;margin-top:16px;}
+.gl-i{overflow:hidden;position:relative;cursor:none;}
+.gl-i:nth-child(1){grid-column:span 2;grid-row:span 2;}
+.gl-i:nth-child(4){grid-column:span 2;}
+.gl-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s ease;}
+.gl-i:hover .gl-img{transform:scale(1.1);}
+.gl-ov{position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;transition:all .4s ease;}
+.gl-ov i{color:var(--white);font-size:1.8rem;opacity:0;transform:scale(.5);transition:all .4s ease;}
+.gl-i:hover .gl-ov{background:rgba(0,0,0,.5);}
+.gl-i:hover .gl-ov i{opacity:1;transform:scale(1);}
+#testi{background:var(--dark);}
+.ts-g{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:16px;}
+.ts-c{background:var(--d2);border:1px solid rgba(201,168,76,.07);padding:32px;transition:all .3s ease;}
+.ts-c:hover{border-color:rgba(201,168,76,.22);transform:translateY(-4px);}
+.tq{font-family:var(--fd);font-size:3.5rem;color:var(--gold);line-height:.6;margin-bottom:18px;opacity:.4;}
+.tt{color:rgba(245,240,232,.72);font-size:.87rem;line-height:1.8;font-style:italic;margin-bottom:22px;}
+.tst{color:var(--gold);font-size:.82rem;margin-bottom:12px;}
+.ta{display:flex;align-items:center;gap:12px;border-top:1px solid rgba(201,168,76,.1);padding-top:18px;}
+.tav{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);}
+.tn{font-size:.88rem;font-weight:600;}.tr{font-size:.73rem;color:var(--gray);}
+#reservation{background:linear-gradient(rgba(0,0,0,.88),rgba(0,0,0,.88)),url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1800&q=80')center/cover fixed;}
+.rs-g{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
+.ri h4{font-family:var(--fd);font-size:1.2rem;color:var(--gold);margin-bottom:18px;}
+.ri-it{display:flex;align-items:flex-start;gap:14px;margin-bottom:22px;}
+.ri-it i{color:var(--gold);font-size:1rem;width:18px;margin-top:3px;}
+.ri-it div{font-size:.86rem;line-height:1.7;}
+.ri-it span{color:var(--gray);font-size:.78rem;display:block;}
+.rf{display:flex;flex-direction:column;gap:14px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{display:flex;flex-direction:column;gap:7px;}
+.flbl{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);}
+.fi,.fsl,.fta{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.2);color:var(--white);padding:12px 14px;font-family:var(--fb);font-size:.86rem;outline:none;transition:border-color .3s ease;appearance:none;width:100%;}
+.fi::placeholder,.fta::placeholder{color:rgba(245,240,232,.28);}
+.fi:focus,.fsl:focus,.fta:focus{border-color:var(--gold);}
+.fta{resize:vertical;min-height:90px;}
+.fsl{cursor:none;}.fsl option{background:var(--d2);}
+.btn-sub{background:var(--gold);color:var(--black);border:none;padding:15px;font-family:var(--fb);font-size:.8rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:none;transition:all .3s ease;width:100%;}
+.btn-sub:hover{background:var(--gold-l);}
+#contact{background:var(--d2);}
+.ct-g{display:grid;grid-template-columns:1fr 1.4fr;gap:52px;margin-top:16px;}
+.ct-map{width:100%;height:100%;min-height:340px;border:0;filter:grayscale(100%) invert(1) contrast(.8) brightness(.4) sepia(.3);}
+.ct-cards{display:flex;flex-direction:column;gap:16px;}
+.cc{background:var(--d3);border:1px solid rgba(201,168,76,.1);padding:22px;display:flex;align-items:flex-start;gap:16px;transition:all .3s ease;}
+.cc:hover{border-color:rgba(201,168,76,.28);}
+.cc i{color:var(--gold);font-size:1.1rem;width:20px;margin-top:2px;}
+.cc h4{font-size:.76rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:5px;}
+.cc p{font-size:.87rem;line-height:1.6;}
+.cc a{color:var(--white);text-decoration:none;transition:color .3s;}.cc a:hover{color:var(--gold);}
+footer{background:#080808;border-top:1px solid rgba(201,168,76,.1);padding:56px 5% 28px;}
+.ft-g{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:44px;padding-bottom:44px;border-bottom:1px solid rgba(201,168,76,.07);margin-bottom:26px;}
+.fbn{font-family:var(--fd);font-size:1.9rem;color:var(--gold);margin-bottom:12px;}
+.fbd{color:var(--gray);font-size:.83rem;line-height:1.8;margin-bottom:22px;}
+.fsoc{display:flex;gap:10px;}
+.fsoc a{width:36px;height:36px;border:1px solid rgba(201,168,76,.2);display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:.85rem;text-decoration:none;transition:all .3s ease;}
+.fsoc a:hover{border-color:var(--gold);color:var(--gold);}
+.fc h4{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;}
+.fc ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.fc ul a{color:var(--gray);text-decoration:none;font-size:.83rem;transition:color .3s;}
+.fc ul a:hover{color:var(--white);}
+.fbot{display:flex;align-items:center;justify-content:space-between;font-size:.76rem;color:rgba(136,136,136,.55);}
+.fab-wa{position:fixed;bottom:30px;right:30px;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.45rem;color:#fff;text-decoration:none;z-index:9000;box-shadow:0 8px 30px rgba(37,211,102,.4);transition:all .3s ease;animation:popin .5s ease 3s both;}
+.fab-wa:hover{transform:scale(1.12);}
+.wa-tip{position:absolute;right:68px;background:var(--d2);color:var(--white);font-size:.73rem;padding:6px 12px;white-space:nowrap;border:1px solid rgba(201,168,76,.2);opacity:0;pointer-events:none;transition:opacity .3s;}
+.fab-wa:hover .wa-tip{opacity:1;}
+.fab-top{position:fixed;bottom:30px;right:100px;width:44px;height:44px;background:rgba(9,9,9,.8);border:1px solid rgba(201,168,76,.3);display:none;align-items:center;justify-content:center;color:var(--gold);font-size:.95rem;cursor:none;z-index:9000;transition:all .3s ease;}
+.fab-top.show{display:flex;}.fab-top:hover{background:var(--gold);color:var(--black);}
+@keyframes fup{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popin{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+.rv{opacity:0;transform:translateY(36px);transition:opacity .7s ease,transform .7s ease;}
+.rv.fl{transform:translateX(-44px);}.rv.fr{transform:translateX(44px);}
+.rv.vis{opacity:1!important;transform:translate(0,0)!important;}
+
+/* ══ ITEM MODAL ══ */
+.mo-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:10000;opacity:0;visibility:hidden;transition:all .35s ease;backdrop-filter:blur(10px);}
+.mo-ov.open{opacity:1;visibility:visible;}
+.im-box{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%) scale(.96);width:min(820px,94vw);max-height:92vh;background:var(--d2);border:1px solid rgba(201,168,76,.18);z-index:10001;overflow:hidden;transition:all .35s cubic-bezier(.34,1.56,.64,1);opacity:0;visibility:hidden;display:flex;flex-direction:column;}
+.im-box.open{transform:translate(-50%,-50%) scale(1);opacity:1;visibility:visible;}
+.im-cls{position:absolute;top:14px;right:14px;width:38px;height:38px;background:rgba(0,0,0,.7);border:1px solid rgba(201,168,76,.2);color:var(--white);font-size:1rem;cursor:none;display:flex;align-items:center;justify-content:center;z-index:2;transition:all .3s;}
+.im-cls:hover{background:var(--gold);color:var(--black);border-color:var(--gold);}
+.im-bd{display:grid;grid-template-columns:1fr 1fr;overflow:hidden;}
+.im-imgw{position:relative;overflow:hidden;}
+.im-img{width:100%;height:100%;min-height:380px;object-fit:cover;display:block;}
+.im-imgtag{position:absolute;top:14px;left:14px;background:var(--gold);color:var(--black);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;padding:4px 11px;font-weight:700;}
+.im-inf{padding:32px 28px;display:flex;flex-direction:column;overflow-y:auto;max-height:92vh;}
+.im-inf .im-sub{font-size:.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.im-inf h2{font-family:var(--fd);font-size:1.9rem;font-weight:600;margin-bottom:10px;line-height:1.2;}
+.im-inf .im-desc{color:rgba(245,240,232,.65);font-size:.87rem;line-height:1.75;margin-bottom:20px;}
+.im-pr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid rgba(201,168,76,.12);}
+.im-pr{font-family:var(--fd);font-size:2rem;color:var(--gold);font-weight:600;}
+.im-pr span{font-size:.82rem;color:var(--gray);font-weight:400;}
+.im-bgs{display:flex;gap:6px;flex-wrap:wrap;}
+.im-bg{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);color:var(--gold);font-size:.63rem;letter-spacing:1.5px;text-transform:uppercase;padding:4px 9px;}
+.qty-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.qty-lbl{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);}
+.qty-c{display:flex;align-items:center;border:1px solid rgba(201,168,76,.25);}
+.qty-b{width:38px;height:38px;background:transparent;border:none;color:var(--gold);font-size:1rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.qty-b:hover{background:var(--gold);color:var(--black);}
+.qty-n{width:44px;height:38px;background:rgba(201,168,76,.06);color:var(--white);text-align:center;font-size:.95rem;font-weight:600;border:none;border-left:1px solid rgba(201,168,76,.15);border-right:1px solid rgba(201,168,76,.15);outline:none;font-family:var(--fb);}
+.note-row{margin-bottom:20px;}
+.note-row label{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:7px;}
+.note-inp{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.18);color:var(--white);padding:10px 13px;font-family:var(--fb);font-size:.83rem;outline:none;resize:none;height:58px;transition:border-color .3s;}
+.note-inp:focus{border-color:var(--gold);}
+.note-inp::placeholder{color:rgba(245,240,232,.28);}
+.btn-addcart{width:100%;background:var(--gold);color:var(--black);border:none;padding:14px;font-family:var(--fb);font-size:.8rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;cursor:none;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:auto;}
+.btn-addcart:hover{background:var(--gold-l);}
+
+/* ══ CART DRAWER ══ */
+.cd-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:11000;opacity:0;visibility:hidden;transition:all .3s;backdrop-filter:blur(4px);}
+.cd-ov.open{opacity:1;visibility:visible;}
+.cd-drw{position:fixed;top:0;right:-480px;width:min(460px,100vw);height:100vh;background:var(--d2);border-left:1px solid rgba(201,168,76,.15);z-index:11001;display:flex;flex-direction:column;transition:right .4s cubic-bezier(.77,0,.175,1);}
+.cd-drw.open{right:0;}
+.cd-hd{padding:22px 22px 18px;border-bottom:1px solid rgba(201,168,76,.1);display:flex;align-items:center;justify-content:space-between;}
+.cd-hd h3{font-family:var(--fd);font-size:1.55rem;}
+.cd-hd h3 span{color:var(--gold);}
+.cd-cls{width:36px;height:36px;background:transparent;border:1px solid rgba(201,168,76,.2);color:var(--white);font-size:.9rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.cd-cls:hover{background:var(--gold);color:var(--black);}
+.cd-itms{flex:1;overflow-y:auto;padding:14px 20px;}
+.cd-itms::-webkit-scrollbar{width:3px;}
+.cd-itms::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);}
+.cd-empty{text-align:center;padding:56px 20px;color:var(--gray);}
+.cd-empty i{font-size:2.8rem;color:rgba(201,168,76,.2);margin-bottom:14px;display:block;}
+.cd-empty p{font-size:.86rem;line-height:1.7;}
+.ci{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid rgba(201,168,76,.07);}
+.ci-img{width:68px;height:68px;object-fit:cover;flex-shrink:0;}
+.ci-info{flex:1;}
+.ci-nm{font-family:var(--fd);font-size:1.05rem;font-weight:600;margin-bottom:3px;}
+.ci-note{font-size:.72rem;color:var(--gray);margin-bottom:7px;font-style:italic;}
+.ci-row{display:flex;align-items:center;justify-content:space-between;}
+.ci-pr{color:var(--gold);font-family:var(--fd);font-size:1.1rem;font-weight:600;}
+.ci-qty{display:flex;align-items:center;border:1px solid rgba(201,168,76,.2);}
+.cqb{width:27px;height:27px;background:transparent;border:none;color:var(--gold);font-size:.85rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:all .25s;}
+.cqb:hover{background:var(--gold);color:var(--black);}
+.cqn{width:30px;height:27px;background:rgba(201,168,76,.06);color:var(--white);text-align:center;font-size:.82rem;font-weight:600;border:none;border-left:1px solid rgba(201,168,76,.15);border-right:1px solid rgba(201,168,76,.15);font-family:var(--fb);}
+.ci-del{background:transparent;border:none;color:rgba(255,100,100,.45);font-size:.82rem;cursor:none;padding:3px 6px;transition:color .3s;margin-left:6px;}
+.ci-del:hover{color:rgba(255,100,100,.85);}
+.cd-ft{padding:18px 20px;border-top:1px solid rgba(201,168,76,.1);}
+.cd-smry{margin-bottom:16px;}
+.cd-rw{display:flex;justify-content:space-between;font-size:.83rem;color:var(--gray);margin-bottom:7px;}
+.cd-tot{display:flex;justify-content:space-between;font-family:var(--fd);font-size:1.32rem;padding-top:10px;border-top:1px solid rgba(201,168,76,.12);}
+.cd-tot span:last-child{color:var(--gold);}
+.ot-row{display:flex;gap:7px;margin-bottom:14px;}
+.ot-b{flex:1;background:transparent;border:1px solid rgba(201,168,76,.2);color:var(--gray);padding:8px 4px;font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;cursor:none;transition:all .3s;font-family:var(--fb);}
+.ot-b.active{background:rgba(201,168,76,.1);border-color:var(--gold);color:var(--gold);}
+.ot-b:hover{border-color:var(--gold);color:var(--gold);}
+.df{display:none;flex-direction:column;gap:9px;margin-bottom:12px;}
+.df.show{display:flex;}
+.df-inp{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.18);color:var(--white);padding:10px 12px;font-family:var(--fb);font-size:.82rem;outline:none;width:100%;transition:border-color .3s;}
+.df-inp::placeholder{color:rgba(245,240,232,.28);}.df-inp:focus{border-color:var(--gold);}
+.btn-ck{width:100%;background:var(--gold);color:var(--black);border:none;padding:14px;font-family:var(--fb);font-size:.8rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;cursor:none;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn-ck:hover{background:var(--gold-l);}
+.btn-clr{width:100%;background:transparent;border:1px solid rgba(255,100,100,.2);color:rgba(255,100,100,.45);padding:8px;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;cursor:none;margin-top:7px;transition:all .3s;font-family:var(--fb);}
+.btn-clr:hover{border-color:rgba(255,100,100,.5);color:rgba(255,100,100,.8);}
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--d3);border:1px solid rgba(201,168,76,.25);color:var(--white);padding:11px 22px;font-size:.8rem;z-index:20000;opacity:0;transition:all .4s ease;pointer-events:none;white-space:nowrap;border-radius:2px;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast i{color:var(--gold);margin-right:8px;}
+@media(max-width:1024px){.ab-g,.rs-g{grid-template-columns:1fr;gap:44px;}.ab-bdg{bottom:-14px;right:-14px;}.st-g{grid-template-columns:repeat(2,1fr);}.st-i:nth-child(2){border-right:none;}.ex-g{grid-template-columns:1fr 1fr;}.ft-g{grid-template-columns:1fr 1fr;}.ct-g{grid-template-columns:1fr;}.im-bd{grid-template-columns:1fr;}.im-img{min-height:220px;max-height:250px;}}
+@media(max-width:768px){.nav-links,.nav-res{display:none;}.hbg{display:flex;}section{padding:66px 5%;}.gl-g{grid-template-columns:1fr 1fr;grid-template-rows:auto;}.gl-i:nth-child(1){grid-column:span 2;grid-row:span 1;}.gl-i:nth-child(4){grid-column:span 1;}.ts-g{grid-template-columns:1fr;}.ex-g{grid-template-columns:1fr;}.ft-g{grid-template-columns:1fr;}.fr2{grid-template-columns:1fr;}.fbot{flex-direction:column;gap:8px;text-align:center;}.st-g{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.m-grid{grid-template-columns:1fr;}.h-btns{flex-direction:column;align-items:center;}.toast{font-size:.74rem;padding:9px 14px;}}
+</style>
+</head>
+<body>
+<div class="cur" id="cur"></div><div class="cur-r" id="curR"></div>
+<div id="pre"><div class="pre-logo">EMBER & SMOKE</div><div class="pre-bar"><div class="pre-fill"></div></div></div>
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="tmsg"></span></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">EMBER<span> & SMOKE</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li><li><a href="#menu">Menu</a></li>
+    <li><a href="#gallery">Gallery</a></li><li><a href="#testi">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-cart" onclick="openCart()"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cbadge">0</span></button>
+    <a href="#reservation" class="nav-res">Reserve</a>
+    <button class="hbg" id="hbg"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mob-menu" id="mobMenu">
+  <a href="#about" class="ml">About</a><a href="#menu" class="ml">Menu</a>
+  <a href="#gallery" class="ml">Gallery</a><a href="#reservation" class="ml">Reservation</a>
+  <a href="#contact" class="ml">Contact</a>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="mo-ov" id="moOv" onclick="closeMoOv(event)">
+  <div class="im-box" id="imBox">
+    <button class="im-cls" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div class="im-bd">
+      <div class="im-imgw"><img src="" alt="" class="im-img" id="imImg"/><div class="im-imgtag" id="imTag"></div></div>
+      <div class="im-inf">
+        <div class="im-sub" id="imSub"></div>
+        <h2 id="imName"></h2>
+        <p class="im-desc" id="imDesc"></p>
+        <div class="im-pr-row">
+          <div class="im-pr"><span>Rs. </span><span id="imPr"></span></div>
+          <div class="im-bgs" id="imBgs"></div>
+        </div>
+        <div class="qty-row">
+          <span class="qty-lbl">Quantity</span>
+          <div class="qty-c">
+            <button class="qty-b" onclick="chQty(-1)"><i class="fas fa-minus"></i></button>
+            <input type="number" class="qty-n" id="mQty" value="1" min="1" max="20" readonly/>
+            <button class="qty-b" onclick="chQty(1)"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+        <div class="note-row">
+          <label>Special Instructions <span style="color:var(--gray);font-size:.63rem;">(optional)</span></label>
+          <textarea class="note-inp" id="iNote" placeholder="Extra spicy, no onions, extra sauce..."></textarea>
+        </div>
+        <button class="btn-addcart" onclick="addToCart()">
+          <i class="fas fa-shopping-bag"></i>
+          Add to Cart &nbsp;&bull;&nbsp; Rs. <span id="acTotal"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="cd-ov" id="cdOv" onclick="closeCart()"></div>
+<div class="cd-drw" id="cdDrw">
+  <div class="cd-hd">
+    <h3>Your Cart <span id="cCount">(0)</span></h3>
+    <button class="cd-cls" onclick="closeCart()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cd-itms" id="cdItms">
+    <div class="cd-empty"><i class="fas fa-utensils"></i><p>Your cart is empty.<br>Add your favourites from the menu!</p></div>
+  </div>
+  <div class="cd-ft" id="cdFt" style="display:none;">
+    <div class="cd-smry">
+      <div class="cd-rw"><span>Subtotal</span><span id="cdSub">Rs. 0</span></div>
+      <div class="cd-rw" id="cdDelRw" style="display:none;"><span>Delivery</span><span>Rs. 150</span></div>
+      <div class="cd-tot"><span>Total</span><span id="cdTot">Rs. 0</span></div>
+    </div>
+    <div class="ot-row">
+      <button class="ot-b active" data-t="Dine-in" onclick="setOT(this)"><i class="fas fa-utensils"></i> Dine-in</button>
+      <button class="ot-b" data-t="Pickup" onclick="setOT(this)"><i class="fas fa-store"></i> Pickup</button>
+      <button class="ot-b" data-t="Delivery" onclick="setOT(this)"><i class="fas fa-motorcycle"></i> Delivery</button>
+    </div>
+    <div class="df" id="dfDel">
+      <input type="text" class="df-inp" id="cNm" placeholder="Your Full Name *"/>
+      <input type="tel" class="df-inp" id="cPh" placeholder="Phone Number *"/>
+      <input type="text" class="df-inp" id="cAd" placeholder="Delivery Address *"/>
+    </div>
+    <div class="df show" id="dfDi">
+      <input type="text" class="df-inp" id="cNmDi" placeholder="Your Name *"/>
+      <input type="tel" class="df-inp" id="cPhDi" placeholder="Phone Number *"/>
+    </div>
+    <button class="btn-ck" onclick="checkout()"><i class="fab fa-whatsapp"></i>Send Order on WhatsApp</button>
+    <button class="btn-clr" onclick="clearCart()"><i class="fas fa-trash-alt"></i> Clear Cart</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="h-bg"></div><div class="h-ov"></div>
+  <div class="h-con">
+    <div class="h-badge">Est. 2018 &nbsp;&bull;&nbsp; Premium BBQ &nbsp;&bull;&nbsp; Lahore</div>
+    <h1 class="h-title">Where Fire Meets<br><em>Flavour</em></h1>
+    <p class="h-sub">Slow-smoked perfection &nbsp;&bull;&nbsp; Handcrafted spices &nbsp;&bull;&nbsp; Unforgettable nights</p>
+    <div class="h-btns">
+      <a href="#menu" class="btn-gold">Explore Menu</a>
+      <a href="#reservation" class="btn-out">Reserve a Table</a>
+    </div>
+  </div>
+  <div class="h-scroll"><span>Scroll</span><div class="sc-ln"></div></div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="st-g">
+    <div class="st-i rv"><div class="st-n" data-t="6">0</div><div class="st-l">Years of Excellence</div></div>
+    <div class="st-i rv"><div class="st-n" data-t="85">0</div><div class="st-l">Signature Dishes</div></div>
+    <div class="st-i rv"><div class="st-n" data-t="12000">0</div><div class="st-l">Happy Guests</div></div>
+    <div class="st-i rv"><div class="st-n" data-t="4.9">0</div><div class="st-l">Average Rating</div></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="ab-g">
+    <div class="ab-iw rv fl">
+      <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80" alt="Restaurant" class="ab-img" loading="lazy"/>
+      <div class="ab-bdg"><strong>6+</strong><span>Years of<br>Passion</span></div>
+    </div>
+    <div class="rv fr">
+      <span class="slbl">Our Story</span>
+      <h2 class="stit">Crafted With <em>Passion,</em><br>Served With Pride</h2>
+      <div class="sln"></div>
+      <p style="color:rgba(245,240,232,.65);line-height:1.9;font-size:.92rem;margin-bottom:16px;">At Ember &amp; Smoke, we believe great food is an experience that engages all the senses. Since 2018, our master chefs have been perfecting the ancient art of slow-smoking, blending traditional Pakistani spice routes with modern culinary techniques.</p>
+      <p style="color:rgba(245,240,232,.65);line-height:1.9;font-size:.92rem;">Every cut of meat is hand-selected, every spice blend is crafted in-house, and every dish is fired to perfection over real hardwood charcoal. This is not just a meal — it is a ritual.</p>
+      <div class="ab-ft">
+        <div class="af"><i class="fas fa-fire"></i><div><h4>Live Fire Cooking</h4><p>Real hardwood, authentic smoke</p></div></div>
+        <div class="af"><i class="fas fa-leaf"></i><div><h4>Fresh Ingredients</h4><p>Farm-sourced daily, never frozen</p></div></div>
+        <div class="af"><i class="fas fa-mortar-pestle"></i><div><h4>House Spice Blends</h4><p>Secret recipes, passed down generations</p></div></div>
+        <div class="af"><i class="fas fa-award"></i><div><h4>Award-Winning</h4><p>Best BBQ — Lahore Food Awards 2023</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="tc rv"><span class="slbl">Our Offerings</span><h2 class="stit">The <em>Menu</em></h2><div class="sln"></div></div>
+  <div class="m-tabs">
+    <button class="m-tab active" data-c="all">All Items</button>
+    <button class="m-tab" data-c="bbq">BBQ &amp; Grill</button>
+    <button class="m-tab" data-c="desi">Desi Classics</button>
+    <button class="m-tab" data-c="starters">Starters</button>
+    <button class="m-tab" data-c="drinks">Drinks</button>
+  </div>
+  <div class="m-grid" id="mGrid"></div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="exp-sec">
+  <div class="tc rv"><span class="slbl">Why Choose Us</span><h2 class="stit">The <em>Ember &amp; Smoke</em><br>Experience</h2><div class="sln"></div></div>
+  <div class="ex-g">
+    <div class="ex-c rv"><div class="ex-ico"><i class="fas fa-fire-flame-curved"></i></div><h3>Live Fire Grilling</h3><p>Every dish cooked fresh over authentic hardwood charcoal. No gas, no shortcuts. Real fire, real flavour.</p></div>
+    <div class="ex-c rv"><div class="ex-ico"><i class="fas fa-utensils"></i></div><h3>Master Chefs</h3><p>Our chefs bring decades of experience from traditional kitchens, carrying recipes that have stood the test of time.</p></div>
+    <div class="ex-c rv"><div class="ex-ico"><i class="fas fa-chair"></i></div><h3>Luxurious Ambiance</h3><p>A warm, inviting space for families, business dinners and celebrations — every table feels special.</p></div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="tc rv"><span class="slbl">Visual Story</span><h2 class="stit">A Feast for <em>the Eyes</em></h2><div class="sln"></div></div>
+  <div class="gl-g">
+    <div class="gl-i rv"><img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=900&q=80" alt="" class="gl-img" loading="lazy"/><div class="gl-ov"><i class="fas fa-expand-alt"></i></div></div>
+    <div class="gl-i rv"><img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80" alt="" class="gl-img" loading="lazy"/><div class="gl-ov"><i class="fas fa-expand-alt"></i></div></div>
+    <div class="gl-i rv"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="" class="gl-img" loading="lazy"/><div class="gl-ov"><i class="fas fa-expand-alt"></i></div></div>
+    <div class="gl-i rv"><img src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80" alt="" class="gl-img" loading="lazy"/><div class="gl-ov"><i class="fas fa-expand-alt"></i></div></div>
+    <div class="gl-i rv"><img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80" alt="" class="gl-img" loading="lazy"/><div class="gl-ov"><i class="fas fa-expand-alt"></i></div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testi">
+  <div class="tc rv"><span class="slbl">Guest Reviews</span><h2 class="stit">What Our <em>Guests</em> Say</h2><div class="sln"></div></div>
+  <div class="ts-g">
+    <div class="ts-c rv"><div class="tq">"</div><div class="tst">★★★★★</div><p class="tt">The seekh kabab here is absolutely unmatched anywhere in Lahore. The charcoal smoke flavour is something that stays with you long after the meal.</p><div class="ta"><img src="https://i.pravatar.cc/150?img=11" class="tav"/><div><div class="tn">Ali Raza</div><div class="tr">Food Blogger, Lahore</div></div></div></div>
+    <div class="ts-c rv"><div class="tq">"</div><div class="tst">★★★★★</div><p class="tt">Brought my family for Eid dinner and everyone was blown away. The biryani and haleem are pure nostalgia. The WhatsApp ordering makes it so convenient.</p><div class="ta"><img src="https://i.pravatar.cc/150?img=47" class="tav"/><div><div class="tn">Sana Malik</div><div class="tr">Homemaker &amp; Foodie</div></div></div></div>
+    <div class="ts-c rv"><div class="tq">"</div><div class="tst">★★★★★</div><p class="tt">We use Ember &amp; Smoke for all our corporate dinners. The presentation is stunning, the food quality is consistent, and the team always goes above and beyond.</p><div class="ta"><img src="https://i.pravatar.cc/150?img=33" class="tav"/><div><div class="tn">Hassan Tariq</div><div class="tr">Business Executive</div></div></div></div>
+  </div>
+</section>
+
+<!-- RESERVATION -->
+<section id="reservation">
+  <div class="rs-g">
+    <div class="rv fl">
+      <span class="slbl">Book Your Table</span>
+      <h2 class="stit">Reserve Your <em>Experience</em></h2>
+      <div class="sln"></div>
+      <div class="ri">
+        <h4>Restaurant Hours</h4>
+        <div class="ri-it"><i class="fas fa-clock"></i><div>Mon-Thu: 12:00 PM - 11:00 PM<br/>Fri-Sun: 12:00 PM - 12:00 AM<span>Last order 30 mins before closing</span></div></div>
+        <div class="ri-it"><i class="fas fa-map-marker-alt"></i><div>Main Boulevard, Gulberg III<br/>Lahore, Pakistan<span>Easy parking available</span></div></div>
+        <div class="ri-it"><i class="fab fa-whatsapp"></i><div><a href="https://wa.me/923008909105" style="color:var(--white);text-decoration:none;">+92 300 890 9105</a><span>WhatsApp preferred</span></div></div>
+      </div>
+    </div>
+    <div class="rv fr">
+      <div class="rf">
+        <div class="fr2">
+          <div class="fg"><label class="flbl">Your Name</label><input type="text" class="fi" placeholder="Ahmed Khan" id="rNm"/></div>
+          <div class="fg"><label class="flbl">Phone</label><input type="tel" class="fi" placeholder="03XX-XXXXXXX" id="rPh"/></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="flbl">Date</label><input type="date" class="fi" id="rDt"/></div>
+          <div class="fg"><label class="flbl">Time</label><input type="time" class="fi" id="rTm"/></div>
+        </div>
+        <div class="fg"><label class="flbl">Guests</label>
+          <select class="fsl fi" id="rGs">
+            <option value="">Select guests</option>
+            <option>1-2 Guests</option><option>3-4 Guests</option><option>5-8 Guests</option>
+            <option>9-15 Guests (Private Room)</option><option>15+ Guests (Event)</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">Special Requests</label><textarea class="fta fi" placeholder="Birthday setup, dietary needs..." id="rNt"></textarea></div>
+        <button class="btn-sub" onclick="sendRes()"><i class="fab fa-whatsapp" style="margin-right:8px;"></i>Confirm via WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="tc rv"><span class="slbl">Find Us</span><h2 class="stit">Visit <em>Us</em></h2><div class="sln"></div></div>
+  <div class="ct-g">
+    <div class="ct-cards rv fl">
+      <div class="cc"><i class="fas fa-map-marker-alt"></i><div><h4>Address</h4><p>Main Boulevard, Gulberg III<br/>Lahore, Punjab, Pakistan</p></div></div>
+      <div class="cc"><i class="fas fa-phone"></i><div><h4>Phone &amp; WhatsApp</h4><p><a href="tel:+923008909105">+92 300 890 9105</a></p></div></div>
+      <div class="cc"><i class="fas fa-envelope"></i><div><h4>Email</h4><p><a href="mailto:itxharoon65@gmail.com">itxharoon65@gmail.com</a></p></div></div>
+      <div class="cc"><i class="fas fa-clock"></i><div><h4>Hours</h4><p>Mon-Thu: 12PM-11PM<br/>Fri-Sun: 12PM-12AM</p></div></div>
+    </div>
+    <div class="rv fr">
+      <iframe class="ct-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3401.6!2d74.3422!3d31.5138!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzHCsDMwJzUwLjAiTiA3NMKwMjAnMzIuMCJF!5e0!3m2!1sen!2s!4v1600000000000!5m2!1sen!2s" loading="lazy" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft-g">
+    <div><div class="fbn">EMBER &amp; SMOKE</div><p class="fbd">Where every meal is a memory. Crafting authentic Pakistani BBQ and Desi cuisine since 2018, with love, fire, and tradition.</p><div class="fsoc"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-facebook-f"></i></a><a href="https://wa.me/923008909105" target="_blank"><i class="fab fa-whatsapp"></i></a><a href="#"><i class="fab fa-tiktok"></i></a></div></div>
+    <div class="fc"><h4>Quick Links</h4><ul><li><a href="#about">About Us</a></li><li><a href="#menu">Our Menu</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#reservation">Reservations</a></li></ul></div>
+    <div class="fc"><h4>Menu</h4><ul><li><a href="#menu">BBQ &amp; Grill</a></li><li><a href="#menu">Desi Classics</a></li><li><a href="#menu">Starters</a></li><li><a href="#menu">Beverages</a></li></ul></div>
+    <div class="fc"><h4>Contact</h4><ul><li><a href="tel:+923008909105">+92 300 890 9105</a></li><li><a href="mailto:itxharoon65@gmail.com">itxharoon65@gmail.com</a></li><li><a href="#">Gulberg III, Lahore</a></li><li><a href="#">12PM-12AM Daily</a></li></ul></div>
+  </div>
+  <div class="fbot"><span>&#169; 2024 Ember &amp; Smoke. All Rights Reserved.</span><span>Designed with &#9825; for Pakistani dining excellence</span></div>
+</footer>
+
+<a href="https://wa.me/923008909105" class="fab-wa" target="_blank"><i class="fab fa-whatsapp"></i><span class="wa-tip">Chat with us</span></a>
+<div class="fab-top" id="fabTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-chevron-up"></i></div>
+
+<script>
+const ITEMS=[
+  {id:1,cat:'bbq',name:'Charcoal Seekh Kabab',sub:'BBQ & Grill',desc:'Handcrafted minced beef kababs slow-grilled on live charcoal with our signature house masala blend. Served with raita and fresh paratha.',price:850,tag:"Chef's Pick",img:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=700&q=80',badges:['Beef','Spicy','Halal']},
+  {id:2,cat:'bbq',name:'Royal BBQ Platter',sub:'BBQ & Grill',desc:'A grand mixed spread of tikka, seekh kabab, boti, and grilled vegetables. Perfect for the whole table to share.',price:2400,tag:'Best Seller',img:'https://images.unsplash.com/photo-1558030006-450675393462?w=700&q=80',badges:['Mixed Meat','Serves 3-4','Signature']},
+  {id:3,cat:'bbq',name:'Smoked Chicken Tikka',sub:'BBQ & Grill',desc:'Bone-in chicken marinated overnight in thick yoghurt and aromatic spices, slow-smoked to golden, juicy perfection.',price:1100,tag:'Popular',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=700&q=80',badges:['Chicken','Medium Spice']},
+  {id:4,cat:'bbq',name:'Lamb Chops Masala',sub:'BBQ & Grill',desc:'Tender lamb chops marinated in a fiery masala, seared on open flame and served with mint chutney.',price:1800,tag:'Premium',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=700&q=80',badges:['Lamb','Premium Cut','Hot']},
+  {id:5,cat:'desi',name:'Slow-Cooked Nihari',sub:'Desi Classics',desc:'An overnight slow-cooked beef shank in a rich aromatic broth of over 20 spices, garnished with ginger, green chilli and lime.',price:780,tag:'Heritage Recipe',img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=700&q=80',badges:['Beef','Heritage','Slow-Cooked']},
+  {id:6,cat:'desi',name:'Ember Mutton Biryani',sub:'Desi Classics',desc:'Dum-cooked basmati rice layered with tender mutton, saffron, fried onions and whole spices. A royal treat in every bite.',price:950,tag:'House Special',img:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=700&q=80',badges:['Mutton','Dum Cooked','Aromatic']},
+  {id:7,cat:'desi',name:'Beef Haleem',sub:'Desi Classics',desc:'8-hour slow-cooked minced meat and lentils, finished with ginger julienne, fried onions and a drizzle of desi ghee.',price:620,tag:'Winter Special',img:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=700&q=80',badges:['Beef','Rich','Comforting']},
+  {id:8,cat:'desi',name:'Karahi Gosht',sub:'Desi Classics',desc:'Succulent lamb pieces cooked in a wok with tomatoes, green chillies and whole spices. Finished in a charcoal-heated iron karahi.',price:1350,tag:'Signature',img:'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=700&q=80',badges:['Lamb','Karahi','Hot']},
+  {id:9,cat:'starters',name:'Crispy Dahi Phulki',sub:'Starters',desc:'Golden fried lentil dumplings topped with tangy yoghurt, sweet tamarind chutney and house chaat masala.',price:420,tag:'Starter',img:'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=700&q=80',badges:['Vegetarian','Tangy','Light']},
+  {id:10,cat:'starters',name:'Masala Papad Platter',sub:'Starters',desc:'Crispy papads topped with diced onions, tomatoes, fresh coriander and house spice mix. Perfect for sharing.',price:320,tag:'Starter',img:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=700&q=80',badges:['Vegetarian','Crunchy','Sharing']},
+  {id:11,cat:'drinks',name:'Rose & Mint Sharbat',sub:'Drinks',desc:'House-made rose syrup with fresh mint, squeezed lemon and a hint of kewra essence, chilled and refreshing.',price:280,tag:'Signature',img:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=700&q=80',badges:['Cold','Non-Alcoholic','Refreshing']},
+  {id:12,cat:'drinks',name:'Doodh Patti Chai',sub:'Drinks',desc:'Rich, full-cream Pakistani milk tea brewed with cardamom, cinnamon and special tea leaves. The perfect ending to any meal.',price:180,tag:'Classic',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=700&q=80',badges:['Hot','Comforting','Desi']},
+];
+
+// ── RENDER MENU ──
+function renderMenu(cat){
+  const g=document.getElementById('mGrid');
+  const list=cat==='all'?ITEMS:ITEMS.filter(i=>i.cat===cat);
+  g.innerHTML=list.map(item=>`
+    <div class="m-card" style="opacity:1;transform:none;">
+      <div class="mc-iw">
+        <img src="${item.img}" alt="${item.name}" class="mc-img" loading="lazy"/>
+        <div class="mc-tag">${item.tag}</div>
+      </div>
+      <div class="mc-body">
+        <h3>${item.name}</h3>
+        <p>${item.desc.slice(0,88)}...</p>
+        <div class="mc-foot">
+          <div class="mc-price">Rs. ${item.price.toLocaleString()} <span>/ serving</span></div>
+          <button class="mc-btn" onclick="openModal(${item.id})"><i class="fas fa-eye"></i> View & Order</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+renderMenu('all');
+document.querySelectorAll('.m-tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.m-tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); renderMenu(t.dataset.c);
+}));
+
+// ── MODAL ──
+let curItem=null;
+function openModal(id){
+  curItem=ITEMS.find(i=>i.id===id); if(!curItem)return;
+  document.getElementById('imImg').src=curItem.img;
+  document.getElementById('imTag').textContent=curItem.tag;
+  document.getElementById('imSub').textContent=curItem.sub;
+  document.getElementById('imName').textContent=curItem.name;
+  document.getElementById('imDesc').textContent=curItem.desc;
+  document.getElementById('imPr').textContent=curItem.price.toLocaleString();
+  document.getElementById('imBgs').innerHTML=curItem.badges.map(b=>`<span class="im-bg">${b}</span>`).join('');
+  document.getElementById('mQty').value=1;
+  document.getElementById('iNote').value='';
+  document.getElementById('acTotal').textContent=curItem.price.toLocaleString();
+  document.getElementById('moOv').classList.add('open');
+  document.getElementById('imBox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('moOv').classList.remove('open');
+  document.getElementById('imBox').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeMoOv(e){if(e.target===document.getElementById('moOv'))closeModal();}
+function chQty(d){
+  const el=document.getElementById('mQty');
+  let v=parseInt(el.value)+d; if(v<1)v=1; if(v>20)v=20;
+  el.value=v;
+  if(curItem)document.getElementById('acTotal').textContent=(curItem.price*v).toLocaleString();
+}
+
+// ── CART ──
+let cart=[]; let ot='Dine-in';
+function addToCart(){
+  if(!curItem)return;
+  const qty=parseInt(document.getElementById('mQty').value);
+  const note=document.getElementById('iNote').value.trim();
+  const ex=cart.find(c=>c.id===curItem.id&&c.note===note);
+  if(ex){ex.qty+=qty;}else{cart.push({...curItem,qty,note});}
+  closeModal(); updCart(); showToast(curItem.name+' added to cart!');
+}
+function updCart(){
+  const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const count=cart.reduce((s,i)=>s+i.qty,0);
+  const b=document.getElementById('cbadge');
+  b.textContent=count; b.classList.toggle('show',count>0);
+  document.getElementById('cCount').textContent='('+count+')';
+  const el=document.getElementById('cdItms'),ft=document.getElementById('cdFt');
+  if(!cart.length){
+    el.innerHTML='<div class="cd-empty"><i class="fas fa-utensils"></i><p>Your cart is empty.<br>Add your favourites from the menu!</p></div>';
+    ft.style.display='none'; return;
+  }
+  ft.style.display='block';
+  el.innerHTML=cart.map((item,i)=>`
+    <div class="ci">
+      <img src="${item.img}" class="ci-img"/>
+      <div class="ci-info">
+        <div class="ci-nm">${item.name}</div>
+        ${item.note?`<div class="ci-note">&#128221; ${item.note}</div>`:''}
+        <div class="ci-row">
+          <div class="ci-pr">Rs. ${(item.price*item.qty).toLocaleString()}</div>
+          <div style="display:flex;align-items:center;">
+            <div class="ci-qty">
+              <button class="cqb" onclick="updQ(${i},-1)"><i class="fas fa-minus"></i></button>
+              <span class="cqn">${item.qty}</span>
+              <button class="cqb" onclick="updQ(${i},1)"><i class="fas fa-plus"></i></button>
+            </div>
+            <button class="ci-del" onclick="rmItem(${i})"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+  const del=ot==='Delivery'?150:0;
+  document.getElementById('cdSub').textContent='Rs. '+total.toLocaleString();
+  document.getElementById('cdDelRw').style.display=ot==='Delivery'?'flex':'none';
+  document.getElementById('cdTot').textContent='Rs. '+(total+del).toLocaleString();
+}
+function updQ(i,d){cart[i].qty+=d; if(cart[i].qty<=0)cart.splice(i,1); updCart();}
+function rmItem(i){cart.splice(i,1); updCart();}
+function clearCart(){cart=[]; updCart();}
+function openCart(){document.getElementById('cdOv').classList.add('open');document.getElementById('cdDrw').classList.add('open');document.body.style.overflow='hidden';}
+function closeCart(){document.getElementById('cdOv').classList.remove('open');document.getElementById('cdDrw').classList.remove('open');document.body.style.overflow='';}
+function setOT(btn){
+  document.querySelectorAll('.ot-b').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); ot=btn.dataset.t;
+  document.getElementById('dfDel').classList.toggle('show',ot==='Delivery');
+  document.getElementById('dfDi').style.display=ot!=='Delivery'?'flex':'none';
+  updCart();
+}
+function checkout(){
+  if(!cart.length){showToast('Your cart is empty!');return;}
+  let nm='',ph='',ad='';
+  if(ot==='Delivery'){
+    nm=document.getElementById('cNm').value.trim();
+    ph=document.getElementById('cPh').value.trim();
+    ad=document.getElementById('cAd').value.trim();
+    if(!nm||!ph||!ad){showToast('Please fill delivery details!');return;}
+  }else{
+    nm=document.getElementById('cNmDi').value.trim();
+    ph=document.getElementById('cPhDi').value.trim();
+    if(!nm||!ph){showToast('Please enter name & phone!');return;}
+  }
+  const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const del=ot==='Delivery'?150:0;
+  const tot=sub+del;
+  // Build order data object
+  const orderData={
+    id:'ES-'+Date.now(),
+    name:nm, phone:ph, type:ot, address:ad||'',
+    items:cart.map(i=>({name:i.name,price:i.price,qty:i.qty,img:i.img,note:i.note||''})),
+    subtotal:sub, delivery:del, total:tot,
+    time:new Date().toLocaleString('en-PK',{dateStyle:'medium',timeStyle:'short'})
+  };
+  // Encode to base64
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(orderData))));
+  // Order page URL
+  const orderURL = window.location.origin + window.location.pathname.replace('index.html','') + 'order.html?d=' + encoded;
+  // WhatsApp message
+  const lines=cart.map(i=>`  • ${i.name} x${i.qty}  =  Rs. ${(i.price*i.qty).toLocaleString()}${i.note?' ['+i.note+']':''}`).join('\n');
+  let msg=`🍽️ *New Order — Ember & Smoke*\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━\n`;
+  msg+=`👤 *Name:* ${nm}\n📱 *Phone:* ${ph}\n🛵 *Order Type:* ${ot}\n`;
+  if(ot==='Delivery') msg+=`📍 *Address:* ${ad}\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━\n`;
+  msg+=`🧾 *Order Details:*\n${lines}\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━\n`;
+  msg+=`💰 *Subtotal:* Rs. ${sub.toLocaleString()}\n`;
+  if(ot==='Delivery') msg+=`🛵 *Delivery:* Rs. 150\n`;
+  msg+=`✅ *TOTAL: Rs. ${tot.toLocaleString()}*\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━\n`;
+  msg+=`📋 *View Full Order (with photos):*\n${orderURL}`;
+  window.open('https://wa.me/923008909105?text='+encodeURIComponent(msg),'_blank');
+  // Clear cart after sending
+  setTimeout(()=>{cart=[];updCart();closeCart();showToast('Order sent successfully!');},500);
+}
+
+// ── RESERVATION ──
+function sendRes(){
+  const nm=document.getElementById('rNm').value.trim();
+  const ph=document.getElementById('rPh').value.trim();
+  const dt=document.getElementById('rDt').value;
+  const tm=document.getElementById('rTm').value;
+  const gs=document.getElementById('rGs').value;
+  const nt=document.getElementById('rNt').value.trim();
+  if(!nm||!ph||!dt||!tm||!gs){alert('Please fill all required fields.');return;}
+  const msg=`🍽️ *Table Reservation — Ember & Smoke*\n\n👤 Name: ${nm}\n📱 Phone: ${ph}\n📅 Date: ${dt}\n🕐 Time: ${tm}\n👥 Guests: ${gs}${nt?'\n📝 Note: '+nt:''}\n\nPlease confirm my reservation. Thank you!`;
+  window.open('https://wa.me/923008909105?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ── TOAST ──
+let tTimer;
+function showToast(msg){
+  document.getElementById('tmsg').textContent=msg;
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(tTimer); tTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),2800);
+}
+
+// ── PRELOADER ──
+window.addEventListener('load',()=>setTimeout(()=>document.getElementById('pre').classList.add('hide'),2400));
+
+// ── CURSOR ──
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX-5+'px';cur.style.top=e.clientY-5+'px';curR.style.left=e.clientX-18+'px';curR.style.top=e.clientY-18+'px';});
+document.querySelectorAll('a,button,.m-tab,.gl-i').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.transform='scale(2.2)';curR.style.transform='scale(1.5)';curR.style.opacity='1';});
+  el.addEventListener('mouseleave',()=>{cur.style.transform='scale(1)';curR.style.transform='scale(1)';curR.style.opacity='.55';});
+});
+
+// ── NAV SCROLL ──
+const navEl=document.getElementById('nav');
+window.addEventListener('scroll',()=>{
+  navEl.classList.toggle('sc',window.scrollY>60);
+  document.getElementById('fabTop').classList.toggle('show',window.scrollY>400);
+});
+
+// ── HAMBURGER ──
+document.getElementById('hbg').addEventListener('click',()=>document.getElementById('mobMenu').classList.toggle('open'));
+document.querySelectorAll('.ml').forEach(l=>l.addEventListener('click',()=>document.getElementById('mobMenu').classList.remove('open')));
+
+// ── SCROLL REVEAL ──
+const rvObs=new IntersectionObserver(entries=>entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('vis'),i*70);rvObs.unobserve(e.target);}}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
+
+// ── COUNTERS ──
+let ctd=false;
+new IntersectionObserver(e=>{if(e[0].isIntersecting&&!ctd){ctd=true;
+  document.querySelectorAll('.st-n[data-t]').forEach(el=>{
+    const t=parseFloat(el.dataset.t),dec=t%1!==0,step=t/125;let c=0;
+    const tm=setInterval(()=>{c+=step;if(c>=t){c=t;clearInterval(tm);}el.textContent=dec?c.toFixed(1):Math.floor(c).toLocaleString();},16);
+  });}},{threshold:.5}).observe(document.getElementById('stats'));
+</script>
+</body>
+</html>
