@@ -659,7 +659,7 @@ function setOT(btn){
   document.getElementById('dfDi').style.display=ot!=='Delivery'?'flex':'none';
   updCart();
 }
-function checkout(){
+async function checkout(){
   if(!cart.length){showToast('Your cart is empty!');return;}
   let nm='',ph='',ad='';
   if(ot==='Delivery'){
@@ -675,35 +675,49 @@ function checkout(){
   const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
   const del=ot==='Delivery'?150:0;
   const tot=sub+del;
-  // Build order data object
   const orderData={
     id:'ES-'+Date.now(),
-    name:nm, phone:ph, type:ot, address:ad||'',
+    name:nm,phone:ph,type:ot,address:ad||'',
     items:cart.map(i=>({name:i.name,price:i.price,qty:i.qty,img:i.img,note:i.note||''})),
-    subtotal:sub, delivery:del, total:tot,
+    subtotal:sub,delivery:del,total:tot,
     time:new Date().toLocaleString('en-PK',{dateStyle:'medium',timeStyle:'short'})
   };
-  // Encode to base64
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(orderData))));
-  // Order page URL
-  const orderURL = window.location.origin + window.location.pathname.replace('index.html','') + 'order.html?d=' + encoded;
-  // WhatsApp message
-  const lines=cart.map(i=>`  • ${i.name} x${i.qty}  =  Rs. ${(i.price*i.qty).toLocaleString()}${i.note?' ['+i.note+']':''}`).join('\n');
-  let msg=`🍽️ *New Order — Ember & Smoke*\n`;
-  msg+=`━━━━━━━━━━━━━━━━━━\n`;
-  msg+=`👤 *Name:* ${nm}\n📱 *Phone:* ${ph}\n🛵 *Order Type:* ${ot}\n`;
-  if(ot==='Delivery') msg+=`📍 *Address:* ${ad}\n`;
-  msg+=`━━━━━━━━━━━━━━━━━━\n`;
-  msg+=`🧾 *Order Details:*\n${lines}\n`;
-  msg+=`━━━━━━━━━━━━━━━━━━\n`;
-  msg+=`💰 *Subtotal:* Rs. ${sub.toLocaleString()}\n`;
-  if(ot==='Delivery') msg+=`🛵 *Delivery:* Rs. 150\n`;
-  msg+=`✅ *TOTAL: Rs. ${tot.toLocaleString()}*\n`;
-  msg+=`━━━━━━━━━━━━━━━━━━\n`;
-  msg+=`📋 *View Full Order (with photos):*\n${orderURL}`;
+  const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(orderData))));
+  const longURL=window.location.origin+window.location.pathname.replace('index.html','')+('order.html?d='+encoded);
+  // Show sending state
+  showToast('Preparing your order...');
+  // Try TinyURL shortening
+  let orderURL=longURL;
+  try{
+    const res=await fetch('https://tinyurl.com/api-create.php?url='+encodeURIComponent(longURL));
+    if(res.ok){
+      const short=await res.text();
+      if(short.startsWith('https://tinyurl.com/')) orderURL=short;
+    }
+  }catch(e){ /* use long url if fails */ }
+  // Build clean WhatsApp message with proper emojis
+  const totalItems=cart.reduce((s,i)=>s+i.qty,0);
+  const lines=cart.map(i=>'  - '+i.name+' x'+i.qty+'  =  Rs. '+( i.price*i.qty).toLocaleString()+(i.note?' ['+i.note+']':'')).join('\n');
+  let msg='';
+  msg+='*New Order — Ember & Smoke*\n';
+  msg+='Order ID: '+orderData.id+'\n';
+  msg+='━━━━━━━━━━━━━━━━━━\n';
+  msg+='Name: '+nm+'\n';
+  msg+='Phone: '+ph+'\n';
+  msg+='Order Type: '+ot+'\n';
+  if(ot==='Delivery') msg+='Address: '+ad+'\n';
+  msg+='━━━━━━━━━━━━━━━━━━\n';
+  msg+='*Order Details ('+totalItems+' items):*\n';
+  msg+=lines+'\n';
+  msg+='━━━━━━━━━━━━━━━━━━\n';
+  msg+='Subtotal: Rs. '+sub.toLocaleString()+'\n';
+  if(ot==='Delivery') msg+='Delivery: Rs. 150\n';
+  msg+='*TOTAL: Rs. '+tot.toLocaleString()+'*\n';
+  msg+='━━━━━━━━━━━━━━━━━━\n';
+  msg+='*View Order with Photos:*\n';
+  msg+=orderURL;
   window.open('https://wa.me/923008909105?text='+encodeURIComponent(msg),'_blank');
-  // Clear cart after sending
-  setTimeout(()=>{cart=[];updCart();closeCart();showToast('Order sent successfully!');},500);
+  setTimeout(()=>{cart=[];updCart();closeCart();showToast('Order sent! Jazak Allah Khair.');},600);
 }
 
 // ── RESERVATION ──
